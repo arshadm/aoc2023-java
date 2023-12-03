@@ -35,7 +35,7 @@ public class Task1Test extends TestBase {
 
         final var data2 = getInputData(DAY, "2b");
         final var actual2 = doTask2(data2);
-        final var expected2 = "53846";
+        final var expected2 = "53855";
         assertEquals(expected2, actual2);
 
     }
@@ -48,34 +48,43 @@ public class Task1Test extends TestBase {
                     .map(ch -> ch - ZERO)
                     .toArray();
 
-            return digits[0]*10 + digits[digits.length-1];
+            return digits[0] * 10 + digits[digits.length - 1];
         }).reduce(0, Integer::sum);
         return sum.toString();
     }
 
     private String doTask2(Collection<String> lines) {
-        final var digitMap = List.of("one", "1", "two", "2", "three", "3",
-                "four", "4", "five", "5", "six", "6", "seven", "7",
-                "eight", "8", "nine", "9");
+        final var digitMap = List.of(
+                "six", "6",
+                "one", "1",
+                "two", "2",
+                "four", "4",
+                "five", "5",
+                "nine", "9",
+                "eight", "8",
+                "seven", "7",
+                "three", "3"
+        );
 
         return doTask1(
-            lines.stream().map(line -> {
-                var buf = new StringBuilder();
-                OUTER: for(int pos=0; pos<line.length();) {
-                    var subLine = line.substring(pos);
-                    for(int i=0; i<digitMap.size(); i+=2) {
-                        if (subLine.startsWith(digitMap.get(i))) {
-                            buf.append(digitMap.get(i+1));
-                            pos += digitMap.get(i).length();
-                            continue OUTER;
-                        }
-                    }
-                    buf.append(line.charAt(pos));
-                    pos += 1;
-                }
-                return buf.toString();
-            })
-            .collect(Collectors.toList())
+                lines.stream().map(line -> {
+                            var buf = new StringBuilder();
+                            OUTER:
+                            for (int pos = 0; pos < line.length(); ) {
+                                var subLine = line.substring(pos);
+                                for (int i = 0; i < digitMap.size(); i += 2) {
+                                    if (subLine.startsWith(digitMap.get(i))) {
+                                        buf.append(digitMap.get(i + 1));
+                                        pos += 1;
+                                        continue OUTER;
+                                    }
+                                }
+                                buf.append(line.charAt(pos));
+                                pos += 1;
+                            }
+                            return buf.toString();
+                        })
+                        .collect(Collectors.toList())
         );
     }
 
