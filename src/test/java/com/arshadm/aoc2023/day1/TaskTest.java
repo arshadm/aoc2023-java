@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Task1Test extends TestBase {
+public class TaskTest extends TestBase {
     private final int DAY = 1;
 
     @Test
