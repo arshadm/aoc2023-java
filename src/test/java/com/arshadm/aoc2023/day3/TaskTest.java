@@ -14,6 +14,11 @@ public class TaskTest extends TestBase {
   private record Part(int x, int y, int num) {
   }
 
+  @FunctionalInterface
+  interface PartsTransformer {
+    Set<Part> transform(int x, int y, char symbol, Set<Part> parts);
+  }
+
   @Test
   public void task1Test() {
     final var data1 = getInputData(DAY, "1a").toArray(new String[]{});
@@ -32,27 +37,36 @@ public class TaskTest extends TestBase {
   public void task2Test() {
     final var data1 = getInputData(DAY, "2a").toArray(new String[]{});
     final var actual1 = doTask2(data1);
-    final var expected1 = "2286";
+    final var expected1 = "467835";
     assertEquals(expected1, actual1);
 
     final var data2 = getInputData(DAY, "2b").toArray(new String[]{});
     final var actual2 = doTask2(data2);
-    final var expected2 = "70265";
+    final var expected2 = "72553319";
     assertEquals(expected2, actual2);
 
   }
 
   private String doTask1(String[] lines) {
-    final Set<Part> parts = findParts(lines);
+    final Set<Part> parts = findParts(lines, (x, y, s, p) -> p);
     final var value = parts.stream().mapToInt(Part::num).sum();
     return String.valueOf(value);
   }
 
   private String doTask2(String lines[]) {
-    return "";
+    final Set<Part> parts = findParts(lines, (x, y, s, p) -> {
+      if (s == '*' && p.size() == 2) {
+        final var ratio = p.stream().mapToInt(Part::num).reduce(1, (a,b) -> a*b);
+        return Sets.newHashSet(new Part(x, y, ratio));
+      } else {
+        return Sets.newHashSet();
+      }
+    });
+    final var value = parts.stream().mapToInt(Part::num).sum();
+    return String.valueOf(value);
   }
 
-  private Set<Part> findParts(String[] lines) {
+  private Set<Part> findParts(String[] lines, PartsTransformer tramsformer) {
     final Set<Part> parts = Sets.newHashSet();
 
     for (int y = 0; y < lines.length; y++) {
@@ -62,16 +76,20 @@ public class TaskTest extends TestBase {
         final var isSymbol = !(ch == '.' || Character.isDigit(ch));
 
         if (isSymbol) {
-          findPart(x - 1, y - 1, lines, parts);
-          findPart(x, y - 1, lines, parts);
-          findPart(x + 1, y - 1, lines, parts);
+          final Set<Part> subParts = Sets.newHashSet();
 
-          findPart(x - 1, y, lines, parts);
-          findPart(x + 1, y, lines, parts);
+          findPart(x - 1, y - 1, lines, subParts);
+          findPart(x, y - 1, lines, subParts);
+          findPart(x + 1, y - 1, lines, subParts);
 
-          findPart(x - 1, y + 1, lines, parts);
-          findPart(x, y + 1, lines, parts);
-          findPart(x + 1, y + 1, lines, parts);
+          findPart(x - 1, y, lines, subParts);
+          findPart(x + 1, y, lines, subParts);
+
+          findPart(x - 1, y + 1, lines, subParts);
+          findPart(x, y + 1, lines, subParts);
+          findPart(x + 1, y + 1, lines, subParts);
+
+          parts.addAll(tramsformer.transform(x, y, ch, subParts));
         }
       }
     }
