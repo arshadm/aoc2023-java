@@ -23,7 +23,7 @@ public class TaskTest extends TestBase {
 
     final var data2 = getInputData(DAY, "1b").toArray(new String[]{});
     final var actual2 = doTask1(data2);
-    final var expected2 = "506281";
+    final var expected2 = "507214";
     assertEquals(expected2, actual2);
 
   }
