@@ -4,7 +4,6 @@ import com.arshadm.aoc2023.TestBase;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
