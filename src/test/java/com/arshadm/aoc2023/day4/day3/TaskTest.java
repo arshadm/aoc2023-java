@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -18,7 +19,11 @@ public class TaskTest extends TestBase {
 
   private record Card(Set<Integer> winning, Set<Integer> numbers) {
     public long score() {
-      return (long)Math.pow(2,(Sets.intersection(winning, numbers).stream().count() - 1));
+      return (long)Math.pow(2,(this.matching() - 1));
+    }
+
+    public long matching() {
+      return Sets.intersection(winning, numbers).size();
     }
   }
 
@@ -40,23 +45,43 @@ public class TaskTest extends TestBase {
   public void task2Test() {
     final var data1 = getInputData(DAY, "2a");
     final var actual1 = doTask2(data1);
-    final var expected1 = "467835";
+    final var expected1 = "30";
     assertEquals(expected1, actual1);
 
     final var data2 = getInputData(DAY, "2b");
     final var actual2 = doTask2(data2);
-    final var expected2 = "72553319";
+    final var expected2 = "23806951";
     assertEquals(expected2, actual2);
-
   }
 
   private String doTask1(Collection<String> lines) {
-    final var score = parseCards(lines).stream().mapToLong(card -> card.score()).sum();
+    final var score = parseCards(lines).stream().mapToLong(Card::score).sum();
     return String.valueOf(score);
   }
 
   private String doTask2(Collection<String> lines) {
-    return "";
+    final var cards = parseCards(lines);
+    final var counts = new HashMap<Card, Integer>();
+
+    for(int i=0; i<cards.size(); i++) {
+      var mainCount = counts.putIfAbsent(cards.get(i), 1);
+      if (mainCount == null) {
+        mainCount = 1;
+      }
+
+      final var matching = (int)cards.get(i).matching();
+      for(int j=i+1; j<cards.size() && (j <= i+matching); j++) {
+        var subCount = counts.putIfAbsent(cards.get(j), 1);
+        if (subCount == null) {
+          subCount = 1;
+        }
+
+        counts.put(cards.get(j), subCount+mainCount);
+      }
+    }
+
+    final var total = counts.values().stream().mapToInt(i -> i).sum();
+    return String.valueOf(total);
   }
 
   private List<Card> parseCards(Collection<String> lines) {
